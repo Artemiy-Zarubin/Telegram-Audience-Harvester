@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build output
+dist/
+dist-test/
+
+# Environment and sensitive files
+.env
+.env.*
+*.session
+*.session-wal
+*.session-shm
+*.session-journal
+
+# Data dumps & exports (prevent leaking user IDs / data)
+*.csv
+*.tsv
+audience_*.json
+harvest_*.json
+dump_*.json
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo

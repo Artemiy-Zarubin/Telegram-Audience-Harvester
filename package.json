@@ -1,0 +1,62 @@
+{
+  "name": "tg-bot-audience-harvester",
+  "version": "1.0.0",
+  "description": "Telegram bot audience and subscriber extractor via MTProto PTS synchronization",
+  "keywords": [
+    "telegram",
+    "telegram-bot",
+    "mtproto",
+    "mtcute",
+    "audience-extractor",
+    "bot-analytics",
+    "telegram-analytics",
+    "subscribers",
+    "pts",
+    "getDifference"
+  ],
+  "author": "Artemiy Zarubin",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "tg-harvester": "./dist/cli.js",
+    "tg-bot-audience-harvester": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Artemiy-Zarubin/tg-bot-audience-harvester.git"
+  },
+  "homepage": "https://github.com/Artemiy-Zarubin/tg-bot-audience-harvester#readme",
+  "bugs": {
+    "url": "https://github.com/Artemiy-Zarubin/tg-bot-audience-harvester/issues"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "tsc -p tsconfig.tests.json && node --test dist-test/tests/*.test.js",
+    "start": "node ./dist/cli.js",
+    "prepublishOnly": "npm run test && npm run build"
+  },
+  "dependencies": {
+    "@mtcute/core": "^0.32.1",
+    "@mtcute/node": "^0.32.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
