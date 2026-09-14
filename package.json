@@ -27,16 +27,16 @@
     }
   },
   "bin": {
-    "telegram-audience-harvester": "./dist/cli.js",
-    "tg-harvester": "./dist/cli.js",
-    "tg-bot-audience-harvester": "./dist/cli.js"
+    "telegram-audience-harvester": "dist/cli.js",
+    "tg-harvester": "dist/cli.js",
+    "tg-bot-audience-harvester": "dist/cli.js"
   },
   "files": [
     "dist"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Artemiy-Zarubin/Telegram-Audience-Harvester.git"
+    "url": "git+https://github.com/Artemiy-Zarubin/Telegram-Audience-Harvester.git"
   },
   "homepage": "https://github.com/Artemiy-Zarubin/Telegram-Audience-Harvester#readme",
   "bugs": {
