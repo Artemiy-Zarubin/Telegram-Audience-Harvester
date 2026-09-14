@@ -4,10 +4,10 @@ import type { HarvestOptions } from './types.js';
 
 function printHelp() {
   console.log(`
-tg-bot-audience-harvester — Telegram Bot Audience Extractor via MTProto
+telegram-audience-harvester — Telegram Bot Audience Extractor via MTProto
 
 USAGE:
-  npx tg-bot-audience-harvester [options]
+  npx telegram-audience-harvester [options]
   tg-harvester [options]
 
 REQUIRED:
@@ -139,7 +139,7 @@ async function runCli() {
   }
 
   if (opts.showVersion) {
-    console.log('tg-bot-audience-harvester 1.0.0');
+    console.log('telegram-audience-harvester 1.0.0');
     process.exit(0);
   }
 

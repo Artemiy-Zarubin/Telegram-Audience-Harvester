@@ -1,5 +1,5 @@
 {
-  "name": "tg-bot-audience-harvester",
+  "name": "telegram-audience-harvester",
   "version": "1.0.0",
   "description": "Telegram bot audience and subscriber extractor via MTProto PTS synchronization",
   "keywords": [
@@ -27,6 +27,7 @@
     }
   },
   "bin": {
+    "telegram-audience-harvester": "./dist/cli.js",
     "tg-harvester": "./dist/cli.js",
     "tg-bot-audience-harvester": "./dist/cli.js"
   },
@@ -35,11 +36,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Artemiy-Zarubin/tg-bot-audience-harvester.git"
+    "url": "https://github.com/Artemiy-Zarubin/Telegram-Audience-Harvester.git"
   },
-  "homepage": "https://github.com/Artemiy-Zarubin/tg-bot-audience-harvester#readme",
+  "homepage": "https://github.com/Artemiy-Zarubin/Telegram-Audience-Harvester#readme",
   "bugs": {
-    "url": "https://github.com/Artemiy-Zarubin/tg-bot-audience-harvester/issues"
+    "url": "https://github.com/Artemiy-Zarubin/Telegram-Audience-Harvester/issues"
   },
   "scripts": {
     "build": "tsc",

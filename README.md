@@ -1,4 +1,4 @@
-# tg-bot-audience-harvester
+# Telegram-Audience-Harvester
 
 Export audience and subscribers from your Telegram bot via MTProto update history (`updates.getDifference`).
 
@@ -22,13 +22,13 @@ Run it directly with `npx`:
 export TELEGRAM_API_ID="123456"
 export TELEGRAM_API_HASH="0123456789abcdef0123456789abcdef"
 
-npx tg-bot-audience-harvester --token "1234567890:ABCdefGhIJKlmNoPQRsTUVwxyZ" --csv audience.csv
+npx telegram-audience-harvester --token "1234567890:ABCdefGhIJKlmNoPQRsTUVwxyZ" --csv audience.csv
 ```
 
 Or pass everything via CLI flags:
 
 ```bash
-npx tg-bot-audience-harvester \
+npx telegram-audience-harvester \
   --token "1234567890:ABCdefGhIJKlmNoPQRsTUVwxyZ" \
   --api-id 123456 \
   --api-hash "0123456789abcdef0123456789abcdef" \
@@ -56,13 +56,13 @@ npx tg-bot-audience-harvester \
 ## Library Usage
 
 ```bash
-npm install tg-bot-audience-harvester
+npm install telegram-audience-harvester
 ```
 
 ### Simple call
 
 ```typescript
-import { harvestBotAudience } from 'tg-bot-audience-harvester';
+import { harvestBotAudience } from 'telegram-audience-harvester';
 
 const report = await harvestBotAudience({
   apiId: 123456,
@@ -82,7 +82,7 @@ console.log(`Found ${report.totalUsers} users (${report.activeUsers} active)`);
 If your bot has a massive audience and you want to stream users as they arrive instead of buffering everything in memory:
 
 ```typescript
-import { BotAudienceHarvester } from 'tg-bot-audience-harvester';
+import { BotAudienceHarvester } from 'telegram-audience-harvester';
 
 const harvester = new BotAudienceHarvester({
   apiId: 123456,

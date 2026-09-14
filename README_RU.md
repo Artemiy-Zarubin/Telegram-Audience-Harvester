@@ -1,4 +1,4 @@
-# tg-bot-audience-harvester
+# Telegram-Audience-Harvester
 
 Сбор аудитории и базы подписчиков любого Telegram-бота через историю обновлений MTProto (`updates.getDifference`).
 
@@ -22,13 +22,13 @@
 export TELEGRAM_API_ID="123456"
 export TELEGRAM_API_HASH="0123456789abcdef0123456789abcdef"
 
-npx tg-bot-audience-harvester --token "1234567890:ABCdefGhIJKlmNoPQRsTUVwxyZ" --csv audience.csv
+npx telegram-audience-harvester --token "1234567890:ABCdefGhIJKlmNoPQRsTUVwxyZ" --csv audience.csv
 ```
 
 Или через флаги в одну строку:
 
 ```bash
-npx tg-bot-audience-harvester \
+npx telegram-audience-harvester \
   --token "1234567890:ABCdefGhIJKlmNoPQRsTUVwxyZ" \
   --api-id 123456 \
   --api-hash "0123456789abcdef0123456789abcdef" \
@@ -56,13 +56,13 @@ npx tg-bot-audience-harvester \
 ## Использование в коде
 
 ```bash
-npm install tg-bot-audience-harvester
+npm install telegram-audience-harvester
 ```
 
 ### Простой вызов
 
 ```typescript
-import { harvestBotAudience } from 'tg-bot-audience-harvester';
+import { harvestBotAudience } from 'telegram-audience-harvester';
 
 const report = await harvestBotAudience({
   apiId: 123456,
@@ -82,7 +82,7 @@ console.log(`Собрано ${report.totalUsers} пользователей (${r
 Если у бота огромная аудитория и не хочется держать все профили в оперативной памяти:
 
 ```typescript
-import { BotAudienceHarvester } from 'tg-bot-audience-harvester';
+import { BotAudienceHarvester } from 'telegram-audience-harvester';
 
 const harvester = new BotAudienceHarvester({
   apiId: 123456,
