@@ -102,6 +102,51 @@ test('BotAudienceHarvester: successful full lifecycle with slices, progress, and
   assert.equal(harvester.isHarvesting(), false);
 });
 
+test('BotAudienceHarvester: report counts preserve overlapping and excluded flags', async () => {
+  const active = { ...createMockUser(1, 'active'), premium: true };
+  const inactive = {
+    ...createMockUser(2, ''),
+    username: undefined,
+    usernames: [],
+    status: { _: 'userStatusOffline', wasOnline: 1 },
+  };
+  const deleted = { ...createMockUser(3, 'deleted'), deleted: true, premium: true };
+  const mockClient = {
+    start: async () => ({ id: 999, username: 'bot', displayName: 'Bot' }),
+    call: async (req: any) => {
+      if (req._ === 'updates.getState') return { pts: 3 };
+      if (req._ === 'updates.getDifference') {
+        return {
+          _: 'updates.difference',
+          state: { pts: 3 },
+          users: [active, inactive, deleted, active],
+          otherUpdates: [],
+          newMessages: [],
+        };
+      }
+      throw new Error(`Unexpected call: ${req._}`);
+    },
+    destroy: async () => {},
+  };
+  const harvester = new BotAudienceHarvester({
+    apiId: 12345,
+    apiHash: 'test_hash',
+    botToken: '12345:TEST_TOKEN',
+    delayMsBetweenRequests: 0,
+    clientFactory: () => mockClient,
+  });
+
+  const report = await harvester.start();
+  assert.equal(report.totalUsers, 3);
+  assert.equal(report.activeUsers, 1);
+  assert.equal(report.inactiveUsers, 1);
+  assert.equal(report.deletedUsers, 1);
+  assert.equal(report.premiumUsers, 2);
+  assert.equal(report.usersWithUsername, 2);
+  assert.equal(report.activeRate, 33.3);
+  assert.equal(report.premiumRate, 66.7);
+});
+
 test('BotAudienceHarvester: prevents infinite loop when slice PTS stalls', async () => {
   const ptsQueries: number[] = [];
 

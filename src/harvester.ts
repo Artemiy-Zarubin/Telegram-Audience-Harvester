@@ -419,11 +419,18 @@ export class BotAudienceHarvester extends EventEmitter {
       }
 
       const allUsers = Array.from(usersMap.values());
-      const activeUsers = allUsers.filter((u) => u.isActive).length;
-      const inactiveUsers = allUsers.filter((u) => !u.isActive && !u.isDeleted).length;
-      const deletedUsers = allUsers.filter((u) => u.isDeleted).length;
-      const premiumUsers = allUsers.filter((u) => u.isPremium).length;
-      const usersWithUsername = allUsers.filter((u) => Boolean(u.username)).length;
+      let activeUsers = 0;
+      let inactiveUsers = 0;
+      let deletedUsers = 0;
+      let premiumUsers = 0;
+      let usersWithUsername = 0;
+      for (const user of allUsers) {
+        if (user.isActive) activeUsers++;
+        if (!user.isActive && !user.isDeleted) inactiveUsers++;
+        if (user.isDeleted) deletedUsers++;
+        if (user.isPremium) premiumUsers++;
+        if (user.username) usersWithUsername++;
+      }
       const durationSec = Math.round((Date.now() - startTime) / 1000);
 
       const report: HarvestReport = {

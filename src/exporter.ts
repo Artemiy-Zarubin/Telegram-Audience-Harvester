@@ -1,5 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { randomUUID } from 'node:crypto';
 import type { BotAudienceUser, HarvestReport } from './types.js';
 
 /**
@@ -30,6 +31,57 @@ function ensureDirectoryExists(filePath: string): void {
   }
 }
 
+function formatCsvRow(u: BotAudienceUser): string {
+  const lastSeenStr = u.lastSeen ? new Date(u.lastSeen * 1000).toISOString() : '';
+  const allUsernames = u.usernames.join(';');
+  return [
+    `"${u.id}"`,
+    `"${sanitizeCsvCell(u.firstName)}"`,
+    `"${sanitizeCsvCell(u.lastName)}"`,
+    `"${sanitizeCsvCell(u.username)}"`,
+    `"${sanitizeCsvCell(allUsernames)}"`,
+    `"${u.isPremium}"`,
+    `"${u.isDeleted}"`,
+    `"${sanitizeCsvCell(u.status)}"`,
+    `"${u.isActive}"`,
+    `"${lastSeenStr}"`,
+    `"${sanitizeCsvCell(u.language)}"`,
+    `"${u.photoDcId ?? ''}"`,
+  ].join(',');
+}
+
+function isTempFileFailure(error: unknown): boolean {
+  if (!error || typeof error !== 'object' || !('code' in error)) return false;
+  return ['ENOSPC', 'EDQUOT', 'EACCES', 'EPERM'].includes(String(error.code));
+}
+
+function publishCsv(tempPath: string, filePath: string): void {
+  if (!fs.lstatSync(filePath, { throwIfNoEntry: false })) {
+    fs.renameSync(tempPath, filePath);
+    return;
+  }
+
+  const source = fs.openSync(tempPath, 'r');
+  try {
+    const destination = fs.openSync(filePath, 'w');
+    try {
+      const buffer = Buffer.allocUnsafe(64 * 1024);
+      let bytesRead: number;
+      while ((bytesRead = fs.readSync(source, buffer, 0, buffer.length, null)) > 0) {
+        for (let offset = 0; offset < bytesRead;) {
+          const written = fs.writeSync(destination, buffer, offset, bytesRead - offset);
+          if (written === 0) throw new Error('CSV publish made no progress');
+          offset += written;
+        }
+      }
+    } finally {
+      fs.closeSync(destination);
+    }
+  } finally {
+    fs.closeSync(source);
+  }
+}
+
 /**
  * Exports bot audience list to an RFC 4180 CSV file with UTF-8 BOM encoding.
  *
@@ -54,32 +106,53 @@ export function exportToCsv(users: BotAudienceUser[], filePath: string): void {
     'Photo DC',
   ].join(',');
 
-  const rows: string[] = new Array(users.length);
+  const tempPath = path.join(path.dirname(path.resolve(filePath)), `.csv-${randomUUID()}.tmp`);
+  let created = false;
+  try {
+    const fd = fs.openSync(tempPath, 'wx');
+    created = true;
+    try {
+      const chunkLimit = 64 * 1024;
+      let parts = ['\uFEFF', header, '\r\n'];
+      let chunkLength = 1 + header.length + 2;
 
-  for (let i = 0; i < users.length; i++) {
-    const u = users[i];
-    const lastSeenStr = u.lastSeen ? new Date(u.lastSeen * 1000).toISOString() : '';
-    const allUsernames = u.usernames.join(';');
+      const flush = (): void => {
+        const bytes = Buffer.from(parts.join(''), 'utf8');
+        for (let offset = 0; offset < bytes.length;) {
+          const written = fs.writeSync(fd, bytes, offset, bytes.length - offset);
+          if (written === 0) throw new Error('CSV write made no progress');
+          offset += written;
+        }
+        parts = [];
+        chunkLength = 0;
+      };
 
-    rows[i] = [
-      `"${u.id}"`,
-      `"${sanitizeCsvCell(u.firstName)}"`,
-      `"${sanitizeCsvCell(u.lastName)}"`,
-      `"${sanitizeCsvCell(u.username)}"`,
-      `"${sanitizeCsvCell(allUsernames)}"`,
-      `"${u.isPremium}"`,
-      `"${u.isDeleted}"`,
-      `"${sanitizeCsvCell(u.status)}"`,
-      `"${u.isActive}"`,
-      `"${lastSeenStr}"`,
-      `"${sanitizeCsvCell(u.language)}"`,
-      `"${u.photoDcId ?? ''}"`,
-    ].join(',');
+      for (const u of users) {
+        const row = formatCsvRow(u) + '\r\n';
+        parts.push(row);
+        chunkLength += row.length;
+        if (chunkLength >= chunkLimit) flush();
+      }
+      if (users.length === 0) parts.push('\r\n');
+      if (parts.length > 0) flush();
+    } finally {
+      fs.closeSync(fd);
+    }
+  } catch (error) {
+    if (created) fs.rmSync(tempPath, { force: true });
+    if (isTempFileFailure(error) && fs.lstatSync(filePath, { throwIfNoEntry: false })) {
+      const rows = users.map(formatCsvRow);
+      fs.writeFileSync(filePath, '\uFEFF' + header + '\r\n' + rows.join('\r\n') + '\r\n', 'utf8');
+      return;
+    }
+    throw error;
   }
 
-  // Prepend UTF-8 BOM for Microsoft Excel compatibility and use CRLF delimiters per RFC 4180
-  const content = '\uFEFF' + header + '\r\n' + rows.join('\r\n') + '\r\n';
-  fs.writeFileSync(filePath, content, 'utf8');
+  try {
+    publishCsv(tempPath, filePath);
+  } finally {
+    fs.rmSync(tempPath, { force: true });
+  }
 }
 
 /**
