@@ -225,6 +225,7 @@ test('exportToCsv falls back to the legacy writer when temp creation or writing 
     }) as typeof fs.openSync;
     mutableFs.writeSync = ((...args: unknown[]) => {
       if (args[0] === tempFd) {
+        tempFd = -1;
         throw Object.assign(new Error('Synthetic temp write failure'), { code: 'ENOSPC' });
       }
       return Reflect.apply(originalWriteSync, mutableFs, args);
